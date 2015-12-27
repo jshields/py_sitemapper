@@ -1,4 +1,4 @@
-# py_web_crawler
+# py_sitemapper
 Work In Progress. Simple hypertext and hyperlink web crawler that outputs a sitemap file.
 
 ##Agenda:
