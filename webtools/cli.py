@@ -20,17 +20,24 @@ def commandline_args_setup():
 def main():
     """main driver"""
     args = commandline_args_setup()
-    verbose = args.verbose
+    verbose_opt = args.verbose
+
+    #import ipdb
+    #ipdb.set_trace()
 
     # handle verbose option
-    if verbose:
+    if verbose_opt:
+        # set the root logger to show info messages
+        logging.getLogger('').setLevel(logging.INFO)
         # setup a logging handler for the command line
-        console = logging.StreamHandler(stream=sys.stdout)
+        console = logging.StreamHandler() #stream=sys.stdout
         console.setLevel(logging.INFO)
         formatter = logging.Formatter('%(funcName)s: %(message)s')
         console.setFormatter(formatter)
-        # add the handler to the root logger
-        logging.getLogger().addHandler(console)
+        # add the handler to the verbose logger
+        verbose = logging.getLogger('verbose')
+        verbose.addHandler(console)
+        verbose.info('Running verbose.')
 
     base_url = args.base_url
 
@@ -38,12 +45,11 @@ def main():
     html = session.try_get_html(base_url)
     page = parse.Page(html)
 
-    logging.info(page.content)
+    verbose.info(page.content)
 
     links = page.links
 
-    #if verbose:
-    logging.info(links)
+    verbose.info(links)
 
     # store the file if opted
     sm = Sitemap(links)

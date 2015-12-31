@@ -22,25 +22,31 @@ class Sitemap(object):
 
     def xml(self):
        """build XML content for sitemap"""
-       xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
-       xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+       xml = u'<?xml version="1.0" encoding="UTF-8"?>\n'
+       xml += u'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
 
        for l in self.links:
-         xml += '\t<url>\n<loc>%s</loc>\n\t</url>\n' % l
+         xml += u'\t<url>\n<loc>%s</loc>\n\t</url>\n' % l
 
-       xml += '</urlset>'
+       xml += u'</urlset>'
        return xml
+
+    @staticmethod
+    def _ensure_file_extension(filepath):
+        """verify that the file name has the xml file entension"""
+        ext_pattern = r'\.xml$'
+        match = re.search(ext_pattern, filepath)
+        # ensure correct file extension
+        if not match:
+            filepath = '{}.xml'.format(filepath)
+        return filepath
  
 
     def export(self, filepath='sitemap.xml'):
        """export a sitemap file"""
-       ext_pattern = r'\.xml$'
-       match = re.search(ext_pattern, filepath)
-
-       # ensure correct file extension
-       if not match:
-         filepath = '{}.xml'.format(filepath)
+       filepath = _ensure_file_extension(filepath)
 
        f = open(filepath, 'w')
+       # TODO make sure we write in utf-8
        f.write(self.xml())
        f.close()

@@ -1,6 +1,8 @@
 """parse module"""
 import requests
 from HTMLParser import HTMLParser
+#from requests.auth import HTTPBasicAuth
+#from getpass import getpass
 
 class Session(object):
     """requests session wrapper"""
@@ -33,7 +35,7 @@ class Session(object):
         if validate:
             isgood = validate_url(url)
             if not isgood:
-                raise ValueError('Request to URL did not yield workable response.')
+                raise ValueError('URL is malformed or incomplete.')
 
         return response.content
 
