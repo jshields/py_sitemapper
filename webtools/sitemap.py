@@ -1,35 +1,27 @@
-"""sitemap module"""
+"""sitemap module: website sitemap utility"""
 import re
 
 # example XML sitemap
 """
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"> 
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://www.example.com/foo.html</loc> 
+    <loc>http://www.example.com/foo.html</loc>
   </url>
 </urlset>
 """
-# TODO
-# All data values in a Sitemap must be entity-escaped. The file itself must be UTF-8 encoded.
-# all URLs in a Sitemap must be from a single host, such as www.example.com or store.example.com
+
+# - All data values in a Sitemap must be entity-escaped. TODO
+# - The file itself must be UTF-8 encoded.
+# - All URLs in a Sitemap must be from a single host,
+#   such as www.example.com or store.example.com
+
 
 class Sitemap(object):
-    """website XML sitemap"""
+    """website sitemap built from links"""
 
     def __init__(self, links):
-       self.links = links
-
-    def xml(self):
-       """build XML content for sitemap"""
-       xml = u'<?xml version="1.0" encoding="UTF-8"?>\n'
-       xml += u'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-
-       for l in self.links:
-         xml += u'\t<url>\n<loc>%s</loc>\n\t</url>\n' % l
-
-       xml += u'</urlset>'
-       return xml
+        self.links = links
 
     @staticmethod
     def _ensure_file_extension(filepath):
@@ -40,13 +32,25 @@ class Sitemap(object):
         if not match:
             filepath = '{}.xml'.format(filepath)
         return filepath
- 
+
+    @property
+    def xml(self):
+        """build XML content for sitemap"""
+        _xml = u'<?xml version="1.0" encoding="UTF-8"?>\n'
+        _xml += u'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+
+        for l in self.links:
+            _xml += u'\t<url>\n<loc>%s</loc>\n\t</url>\n' % l
+
+        _xml += u'</urlset>\n'
+        return _xml
 
     def export(self, filepath='sitemap.xml'):
-       """export a sitemap file"""
-       filepath = _ensure_file_extension(filepath)
+        """export a sitemap file"""
+        filepath = _ensure_file_extension(filepath)
 
-       f = open(filepath, 'w')
-       # TODO make sure we write in utf-8
-       f.write(self.xml())
-       f.close()
+        import ipdb
+        ipdb.set_trace()
+
+        with open(filepath, encoding='utf-8', mode='w') as f:
+            f.write(self.xml)
