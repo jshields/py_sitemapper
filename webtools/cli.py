@@ -15,7 +15,7 @@ def commandline_args_setup():
     parser.add_argument('--base-url', '-B', action='store', required=True,
                         help='Base URL to parse.')
     parser.add_argument('--sitemap', '-S', action='store', default=False,
-                        help='Option to store sitemap file.')
+                        help='Option to save sitemap file at a relative path.')
     parser.add_argument('--verbose', '-V', action='store_true',
                         help='Verbose output of runtime information.')
     args = parser.parse_args()
@@ -50,6 +50,7 @@ def main():
     html = session.try_get_html(base_url)
     page = parse.Page(base_url, html)
 
+    #logging.getLogger('verbose').info()
     verbose.info(page.content)
 
     links = page.links

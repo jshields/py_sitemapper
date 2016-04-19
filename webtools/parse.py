@@ -72,15 +72,15 @@ class Page(object):
         """only return URLs - not hash navs"""
 
 
-        # TODO
+        # TODO verify results
         clean = []
 
-        hashnav_pattern = r'$#'
+        hashnav_pattern = r'^#'
 
         for l in self.links:
-            match = re.search()
+            match = re.search(hashnav_pattern, l)
 
-
+            if not match:
                 clean.append(l)
 
         return clean
@@ -91,8 +91,9 @@ class Page(object):
         if not then prepend with the base URL
         """
         
-        import ipdb
-        ipdb.set_trace()
+        #import ipdb
+        #ipdb.set_trace()
+        print(links)
 
         links_to_keep = []
         parse_page_url = urlparse.urlparse(self.url)
@@ -121,9 +122,9 @@ class Page(object):
                     # and reside on the same host as the Sitemap." - http://www.sitemaps.org/protocol.html
                     links_to_keep.append(parse_link.geturl())
 
-        import ipdb
-        ipdb.set_trace()
-        
+        #import ipdb
+        #ipdb.set_trace()
+        print('keep: %s' % links_to_keep)
         return links_to_keep
 
     def _parse_links(self):
