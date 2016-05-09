@@ -1,5 +1,6 @@
 """parse module: parse web content"""
-import requests
+import requests  # pip dependency
+import logging
 import re
 import urlparse
 from HTMLParser import HTMLParser
@@ -8,32 +9,28 @@ from HTMLParser import HTMLParser
 
 
 class Session(object):
-    """requests session wrapper"""
+    """requests Session wrapper"""
 
     @staticmethod
-    def getStatusByCode(code):
-        """function for finding request status by code"""
-        # may need further manipulation before dict zipping
-        # because there are more string aliases than there are numeric codes
+    def status_by_code(code):
+        """find request status by code"""
         orig = vars(requests.codes)
         flipped = dict(zip(orig.values(), orig.keys()))
         code = int(code)
         return flipped[code].upper()
 
-    def __init__(self, base_url):
-        self.base_url = base_url
+    def __init__(self):
+        """init parse Session with desired headers"""
         self.session = requests.Session()
         headers = {
                     'Accept': 'text/html'
                   }
         self.session.headers.update(headers)
 
-    def try_get_html(self, endpoint):
-        """GET requests a URI, fails silently by default,
-        the request may be a guess or dead link.
-        Designed to work with links for relative URIs, not external or full URLs.
+    def html_at_url(self, url):
         """
-        url = '{}/{}'.format(self.base_url, endpoint)
+        get the HTML content at a url
+        """
         response = self.session.get(url)
         return response.content
 
@@ -47,7 +44,7 @@ class Page(object):
         self.url = url
         # the HTML content of the page
         self.content = content
-        self._links = None
+
 
     class LinksHTMLParser(HTMLParser):
         """HTMLParser subclass to get hrefs from anchors"""
@@ -59,49 +56,45 @@ class Page(object):
 
         def handle_starttag(self, tag, attrs):
             """look for anchors and store their href attribute"""
+            # anchor tag
             if tag == 'a':
                 for attr in attrs:
+                    # attr name
                     if attr[0] == 'href':
+                        # attr value
                         self._parsed_links.append(attr[1])
 
         def close(self):
+            """done parsing"""
             HTMLParser.close(self)
             return self._parsed_links
 
     def _remove_hashnavs(self, links):
         """only return URLs - not hash navs"""
-
-
         # TODO verify results
-        clean = []
+        hashnav_pattern = r'(^#)'
 
-        hashnav_pattern = r'^#'
+        for li in links:
+            match = re.match(hashnav_pattern, li)
+            if match:
+                links.remove(li)
 
-        for l in self.links:
-            match = re.search(hashnav_pattern, l)
-
-            if not match:
-                clean.append(l)
-
-        return clean
+        return links
 
     def _fully_qualify_links(self, links):
         """determine if a link is fully qualified with
         the correct protocol/scheme and domain name,
         if not then prepend with the base URL
         """
-        
-        #import ipdb
-        #ipdb.set_trace()
-        print(links)
+        print('initial links:', links)
 
         links_to_keep = []
         parse_page_url = urlparse.urlparse(self.url)
 
-        for l in links:
-            parse_link = urlparse.urlparse(l)
-            scheme = parse_link.scheme
-            hostname = parse_link.hostname
+        for link_url in links:
+            parse_url = urlparse.urlparse(link_url)
+            scheme = parse_url.scheme
+            hostname = parse_url.hostname
 
             # must be a hypertext protocol, we are dealing with HTML
             # removes 'tel', 'mailto', etc
@@ -115,34 +108,50 @@ class Page(object):
                     # fully qualify relative URIs
                     hostname = parse_page_url.hostname
 
-                parse_link = urlparse.urlparse('%s://%s/%s' % (scheme, hostname, parse_link.path))
-                
-                if parse_link.hostname == parse_page_url.hostname:
+                # reconstruct the fully qualified url from:
+                # scheme, netloc (host / domain), path, params, query, fragment)
+                parse_url = urlparse.urlunparse((scheme, hostname, parse_url.path, '', '', ''))
+
+                if parse_url.scheme == parse_page_url.scheme and parse_url.hostname == parse_page_url.hostname:
                     # "Note that this means that all URLs listed in the Sitemap must use the same protocol...
                     # and reside on the same host as the Sitemap." - http://www.sitemaps.org/protocol.html
-                    links_to_keep.append(parse_link.geturl())
+                    links_to_keep.append(parse_url.geturl())
 
-        #import ipdb
-        #ipdb.set_trace()
-        print('keep: %s' % links_to_keep)
-        return links_to_keep
+        print('keep: %s' % links)
+        return links
 
     def _parse_links(self):
-        """use LinksHTMLParser to extract hrefs on page"""
+        """use LinksHTMLParser to extract hrefs from page"""
         html = self.content
-        self._links = []
         parser = self.LinksHTMLParser()
         parser.feed(html)
         parsed_links = parser.close()
         return parsed_links
 
+    def _warn_404s(self, links):
+        """
+        TODO
+        warn the consumer about 404 Not Found pages
+        note: does not remove the link
+        """
+        _session = Session()
+
+        for link_url in links:
+            response = _session.get(link_url)
+            status_code = response.status_code
+
+            if status_code == requests.codes.NOT_FOUND:
+                status_by_code(status_code)
+                #logging.getLogger('verbose').warn()
+
     @property
     def links(self):
-        """anchors on the current page content"""
-        if self._links is None:
-            links = self._parse_links()
-            links = self._remove_hashnavs(links)
-            links = self._fully_qualify_links(links)
-            self._links = links
+        """anchors in the current page content"""
+        links = self._parse_links()
 
-        return self._links
+        # TODO refactor to avoid multiple loops?
+        #links = self._warn_404s(links)
+        links = self._remove_hashnavs(links)
+        links = self._fully_qualify_links(links)
+
+        return links

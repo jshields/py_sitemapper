@@ -1,6 +1,10 @@
 # py_sitemapper
 Work In Progress. Simple hypertext and hyperlink web crawler that outputs a sitemap file.
 
+Python 2.7+
+
+Example: `python cli.py --base-url http://jshields.github.io/showcase/sitemapper_target/home.htm`
+
 ##Agenda:
  - Make a request to a URL
  - Search HTML for anchor tags and retrieve their hypertext references

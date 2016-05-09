@@ -30,17 +30,23 @@ class Sitemap(object):
         match = re.search(ext_pattern, filepath)
         # ensure correct file extension
         if not match:
-            filepath = '{}.xml'.format(filepath)
+            filepath = '{path}.xml'.format(path=filepath)
         return filepath
 
     @property
     def xml(self):
-        """build XML content for sitemap"""
+        """build XML content for sitemap
+        TODO: XML template would be better in a future version
+        (perhaps done with Jinja)
+        """
         _xml = u'<?xml version="1.0" encoding="UTF-8"?>\n'
         _xml += u'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
 
-        for l in self.links:
-            _xml += u'\t<url>\n<loc>%s</loc>\n\t</url>\n' % l
+        for url in self.links:
+            _xml += (u'\t<url>\n'
+                     u'\t\t<loc>{url}</loc>\n'
+                     u'\t</url>\n'
+                     ).format(url=url)
 
         _xml += u'</urlset>\n'
         return _xml
@@ -49,6 +55,7 @@ class Sitemap(object):
         """export a sitemap file"""
         filepath = _ensure_file_extension(filepath)
 
+        #TODO
         import ipdb
         ipdb.set_trace()
 

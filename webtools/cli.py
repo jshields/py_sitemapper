@@ -1,8 +1,9 @@
 """cli module: Command Line Interface for sitemap generator"""
+# external modules
 import sys
 import argparse
 import logging
-
+# project modules
 import parse
 from sitemap import Sitemap
 
@@ -27,35 +28,31 @@ def main():
     args = commandline_args_setup()
 
     # handle verbose option
-    verbose_opt = args.verbose
-    if verbose_opt:
-        # set the root logger to show info messages
-        logging.getLogger('').setLevel(logging.INFO)
-        # setup a logging handler for the command line
+    if args.verbose is True:
+        # setup a logging handler to the command line
         console = logging.StreamHandler()  # stream=sys.stdout
         console.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(funcName)s: %(message)s')
+        formatter = logging.Formatter('{funcName}: {message}')  # TODO verify
         console.setFormatter(formatter)
         # add the handler to the verbose logger
         verbose = logging.getLogger('verbose')
         verbose.addHandler(console)
         verbose.info('Running verbose.')
 
-    import ipdb
-    ipdb.set_trace()
+    #import ipdb
+    #ipdb.set_trace()
 
     base_url = args.base_url
 
-    session = parse.Session(base_url)
-    html = session.try_get_html(base_url)
-    page = parse.Page(base_url, html)
+    session = parse.Session(base_url=base_url)
+    html = session.html_at_url(base_url)
 
-    #logging.getLogger('verbose').info()
-    verbose.info(page.content)
+    # this web page is defined as a URL and some HTML
+    page = parse.Page(base_url, html)
+    logging.getLogger('verbose').info(page.content)
 
     links = page.links
-
-    verbose.info(links)
+    logging.getLogger('verbose').info(links)
 
     # store the file if opted
     sm = Sitemap(links)
