@@ -11,14 +11,6 @@ from HTMLParser import HTMLParser
 class Session(object):
     """requests Session wrapper"""
 
-    @staticmethod
-    def status_by_code(code):
-        """find request status by code"""
-        orig = vars(requests.codes)
-        flipped = dict(zip(orig.values(), orig.keys()))
-        code = int(code)
-        return flipped[code].upper()
-
     def __init__(self):
         """init parse Session with desired headers"""
         self.session = requests.Session()
@@ -35,18 +27,7 @@ class Session(object):
         return response.content
 
 
-class Page(object):
-    """page of a site"""
-
-    def __init__(self, url, content):
-        """Page init"""
-        # URL to serve as static information about this page's location
-        self.url = url
-        # the HTML content of the page
-        self.content = content
-
-
-    class LinksHTMLParser(HTMLParser):
+class LinksHTMLParser(HTMLParser):
         """HTMLParser subclass to get hrefs from anchors"""
 
         def __init__(self):
@@ -69,15 +50,45 @@ class Page(object):
             HTMLParser.close(self)
             return self._parsed_links
 
+
+class Page(object):
+    """page of a web site"""
+
+    def __init__(self, url, content):
+        """Page init
+
+        Args:
+            url (str): URL to serve as static information
+                about this page's location.
+            content (): the HTML content of the page
+        """
+
+        self.url = url
+        self.content = content
+
+    def _parse_links(self):
+        """use LinksHTMLParser to extract hrefs from page"""
+        html = self.content
+        parser = LinksHTMLParser()
+        parser.feed(html)
+        return parser.close()
+
     def _remove_hashnavs(self, links):
         """only return URLs - not hash navs"""
-        # TODO verify results
-        hashnav_pattern = r'(^#)'
+        hashnav_pattern = r'^#'
+        to_remove = []
 
         for li in links:
+            # hashnav as href or at end of path
             match = re.match(hashnav_pattern, li)
-            if match:
-                links.remove(li)
+            if match or urlparse.urlparse(li).fragment:
+                logging.getLogger('verbose').info('Removing {link}'.format(link=li))
+                to_remove.append(li)
+
+        # now that we're done looping over the list,
+        # we can modify it safely
+        for li in to_remove:
+            links.remove(li)
 
         return links
 
@@ -86,8 +97,6 @@ class Page(object):
         the correct protocol/scheme and domain name,
         if not then prepend with the base URL
         """
-        print('initial links:', links)
-
         links_to_keep = []
         parse_page_url = urlparse.urlparse(self.url)
 
@@ -108,25 +117,45 @@ class Page(object):
                     # fully qualify relative URIs
                     hostname = parse_page_url.hostname
 
+                # prepend a potentially relative URI with the path
+                # of the page from where it is linked
+                parse_url_path = urlparse.urljoin(parse_page_url.path, parse_url.path)
+
                 # reconstruct the fully qualified url from:
-                # scheme, netloc (host / domain), path, params, query, fragment)
-                parse_url = urlparse.urlunparse((scheme, hostname, parse_url.path, '', '', ''))
+                # scheme, network location, path, params, query, fragment)
+                # cycling an unparsed string back into a ParseResult
+                parse_url_update = urlparse.urlparse(
+                                                     urlparse.urlunparse(
+                                                                         (scheme,
+                                                                          hostname,
+                                                                          parse_url_path,
+                                                                          '',  # params
+                                                                          '',  # query
+                                                                          ''   # fragment
+                                                                          )
+                                                                         )
+                                                     )
 
-                if parse_url.scheme == parse_page_url.scheme and parse_url.hostname == parse_page_url.hostname:
-                    # "Note that this means that all URLs listed in the Sitemap must use the same protocol...
-                    # and reside on the same host as the Sitemap." - http://www.sitemaps.org/protocol.html
-                    links_to_keep.append(parse_url.geturl())
+                if (parse_url_update.scheme == parse_page_url.scheme and
+                        parse_url_update.hostname == parse_page_url.hostname):
+                    # "Note that this means that all URLs listed in the
+                    # Sitemap must use the same protocol...
+                    # and reside on the same host as the Sitemap."
+                    # - http://www.sitemaps.org/protocol.html
+                    links_to_keep.append(parse_url_update.geturl())
 
-        print('keep: %s' % links)
-        return links
+        return links_to_keep
 
-    def _parse_links(self):
-        """use LinksHTMLParser to extract hrefs from page"""
-        html = self.content
-        parser = self.LinksHTMLParser()
-        parser.feed(html)
-        parsed_links = parser.close()
-        return parsed_links
+    def _remove_duplicates(self, sequence):
+        """
+        Keeping the order of the sequence,
+        while removing duplicates.
+        (http://stackoverflow.com/questions/480214/
+        how-do-you-remove-duplicates-from-a-list-in-python-whilst-preserving-order)
+        """
+        seen = set()
+        seen_add = seen.add
+        return [x for x in sequence if not (x in seen or seen_add(x))]
 
     def _warn_404s(self, links):
         """
@@ -141,17 +170,15 @@ class Page(object):
             status_code = response.status_code
 
             if status_code == requests.codes.NOT_FOUND:
-                status_by_code(status_code)
-                #logging.getLogger('verbose').warn()
+                logging.getLogger('verbose').warn('404 Not Found URL in site: {url}'.format(url=link_url))
 
     @property
     def links(self):
         """anchors in the current page content"""
         links = self._parse_links()
-
-        # TODO refactor to avoid multiple loops?
-        #links = self._warn_404s(links)
         links = self._remove_hashnavs(links)
         links = self._fully_qualify_links(links)
+        links = self._remove_duplicates(links)
+        #links = self._warn_404s(links)
 
         return links

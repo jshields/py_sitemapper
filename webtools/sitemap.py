@@ -18,9 +18,20 @@ import re
 
 
 class Sitemap(object):
-    """website sitemap built from links"""
+    """Website sitemap built from links.
+    Can be output to a sitemap file.
+    """
 
     def __init__(self, links):
+        """
+        Sitemap init
+
+        Args:
+            links (list of str): A list of the URLs
+                that should be in the sitemap.
+                These should likely correspond
+                to links on a web page.
+        """
         self.links = links
 
     @staticmethod
@@ -36,8 +47,7 @@ class Sitemap(object):
     @property
     def xml(self):
         """build XML content for sitemap
-        TODO: XML template would be better in a future version
-        (perhaps done with Jinja)
+        TODO: XML template would be better for code separation
         """
         _xml = u'<?xml version="1.0" encoding="UTF-8"?>\n'
         _xml += u'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -55,9 +65,10 @@ class Sitemap(object):
         """export a sitemap file"""
         filepath = _ensure_file_extension(filepath)
 
+        raise NotImplementedError('work in progress')
         #TODO
-        import ipdb
-        ipdb.set_trace()
+        #import ipdb
+        #ipdb.set_trace()
 
         with open(filepath, encoding='utf-8', mode='w') as f:
             f.write(self.xml)

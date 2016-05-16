@@ -39,12 +39,11 @@ def main():
         verbose.addHandler(console)
         verbose.info('Running verbose.')
 
-    #import ipdb
-    #ipdb.set_trace()
+    import ipdb
+    ipdb.set_trace()
 
     base_url = args.base_url
-
-    session = parse.Session(base_url=base_url)
+    session = parse.Session()
     html = session.html_at_url(base_url)
 
     # this web page is defined as a URL and some HTML
