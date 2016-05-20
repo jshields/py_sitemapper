@@ -4,8 +4,6 @@ import logging
 import re
 import urlparse
 from HTMLParser import HTMLParser
-#from requests.auth import HTTPBasicAuth
-#from getpass import getpass
 
 
 class Session(object):
@@ -157,21 +155,6 @@ class Page(object):
         seen_add = seen.add
         return [x for x in sequence if not (x in seen or seen_add(x))]
 
-    def _warn_404s(self, links):
-        """
-        TODO
-        warn the consumer about 404 Not Found pages
-        note: does not remove the link
-        """
-        _session = Session()
-
-        for link_url in links:
-            response = _session.get(link_url)
-            status_code = response.status_code
-
-            if status_code == requests.codes.NOT_FOUND:
-                logging.getLogger('verbose').warn('404 Not Found URL in site: {url}'.format(url=link_url))
-
     @property
     def links(self):
         """anchors in the current page content"""
@@ -179,6 +162,6 @@ class Page(object):
         links = self._remove_hashnavs(links)
         links = self._fully_qualify_links(links)
         links = self._remove_duplicates(links)
-        #links = self._warn_404s(links)
+        # TODO links = self._warn_404s(links)
 
         return links
