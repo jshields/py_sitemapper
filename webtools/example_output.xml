@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url>
+		<loc>http://jshields.github.io/showcase/sitemapper_target/foo.htm</loc>
+	</url>
+	<url>
+		<loc>http://jshields.github.io/showcase/sitemapper_target/bar.htm</loc>
+	</url>
+	<url>
+		<loc>http://jshields.github.io/showcase/sitemapper_target/cat.htm</loc>
+	</url>
+	<url>
+		<loc>http://jshields.github.io/showcase/sitemapper_target/404_not_real.htm</loc>
+	</url>
+</urlset>

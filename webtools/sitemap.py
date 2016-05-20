@@ -1,8 +1,10 @@
 """sitemap module: website sitemap utility"""
 import re
+import io
 
-# example XML sitemap
+
 """
+example XML sitemap:
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -10,11 +12,12 @@ import re
   </url>
 </urlset>
 """
-
 # - All data values in a Sitemap must be entity-escaped. TODO
 # - The file itself must be UTF-8 encoded.
 # - All URLs in a Sitemap must be from a single host,
 #   such as www.example.com or store.example.com
+
+DEFAULT_SITEMAP_NAME = 'sitemap.xml'
 
 
 class Sitemap(object):
@@ -61,14 +64,9 @@ class Sitemap(object):
         _xml += u'</urlset>\n'
         return _xml
 
-    def export(self, filepath='sitemap.xml'):
+    def export(self, filepath=DEFAULT_SITEMAP_NAME):
         """export a sitemap file"""
-        filepath = _ensure_file_extension(filepath)
+        filepath = self._ensure_file_extension(filepath)
 
-        raise NotImplementedError('work in progress')
-        #TODO
-        #import ipdb
-        #ipdb.set_trace()
-
-        with open(filepath, encoding='utf-8', mode='w') as f:
-            f.write(self.xml)
+        with io.open(filepath, encoding='utf-8', mode='w') as fi:
+            fi.write(self.xml)
