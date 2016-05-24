@@ -1,11 +1,11 @@
 """cli module: Command Line Interface for sitemap generator"""
 # external modules
-import sys
 import argparse
 import logging
+
 # project modules
 import parse
-from sitemap import Sitemap, DEFAULT_SITEMAP_NAME
+from sitemap import DEFAULT_SITEMAP_NAME, Sitemap
 
 
 def commandline_args_setup():
@@ -16,7 +16,7 @@ def commandline_args_setup():
         description=('CLI webpage parser that gathers links '
                      'and optionally outputs a sitemap.'
                      )
-        )
+    )
     parser.add_argument('base-url', action='store',
                         help='Base URL to parse.')
     parser.add_argument('--sitemap-dest', '-S', action='store',
@@ -44,9 +44,9 @@ def _prompt_sitemap_save(site_url, filepath):
         filepath: The path where the sitemap file will be saved.
     """
     print(
-          ('You are about to save a sitemap file for {site},\n'
-           'at {path}').format(site=site_url, path=filepath)
-          )
+        ('You are about to save a sitemap file for {site},\n'
+         'at {path}').format(site=site_url, path=filepath)
+    )
     user_resp = raw_input('Continue? Y or N\n').lower()
 
     if user_resp not in ('y', 'n'):
