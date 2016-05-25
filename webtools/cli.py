@@ -68,13 +68,14 @@ def main():
 
     # handle verbose option
     if args.verbose is True:
-        # setup a logging handler to the command line
+        # setup a logging handler for the command line
         console = logging.StreamHandler()  # stream=sys.stdout
         console.setLevel(logging.INFO)
-        formatter = logging.Formatter('{funcName}: {message}')  # TODO verify
+        formatter = logging.Formatter('%(funcName)s: %(message)s')
         console.setFormatter(formatter)
         # add the handler to the verbose logger
         verbose = logging.getLogger('verbose')
+        verbose.setLevel(logging.INFO)
         verbose.addHandler(console)
         verbose.info('Running verbose.')
 
