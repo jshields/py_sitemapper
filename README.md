@@ -1,9 +1,11 @@
-# py_sitemapper
+#py_sitemapper
 Simple hypertext and hyperlink web crawler that outputs a `sitemap.xml` file.
 
 URL parameters, query string, and document fragment identifier (hash navigation) do not currently carry to the output sitemap file.
 
 Compatibility: Python 2.7+
+
+Requires `requests` module: `pip install requests`
 
 Example: `python cli.py --base-url http://jshields.github.io/showcase/sitemapper_target/home.htm`
 
