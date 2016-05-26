@@ -17,10 +17,9 @@ def commandline_args_setup():
                      'and optionally outputs a sitemap.'
                      )
     )
-    parser.add_argument('base-url', action='store',
+    parser.add_argument('base_url', action='store',
                         help='Base URL to parse.')
     parser.add_argument('--sitemap-dest', '-S', action='store',
-                        required=False,
                         default=DEFAULT_SITEMAP_NAME,
                         help=('Option to save sitemap file at '
                               'a different destination. '

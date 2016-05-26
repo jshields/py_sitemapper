@@ -7,7 +7,7 @@ Compatibility: Python 2.7+
 
 Requires `requests` module: `pip install requests`
 
-Example: `python cli.py --base-url http://jshields.github.io/showcase/sitemapper_target/home.htm`
+Example: `python cli.py http://jshields.github.io/showcase/sitemapper_target/home.htm`
 
 ##How it Works:
  - Make a request to a URL to get its markup.
