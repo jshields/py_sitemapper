@@ -1,20 +1,22 @@
 """parse module: parse web content"""
-import requests  # pip dependency
 import logging
 import re
 import urlparse
 from HTMLParser import HTMLParser
 
+import requests
+
 
 class Session(object):
+
     """requests Session wrapper"""
 
     def __init__(self):
         """init parse Session with desired headers"""
         self.session = requests.Session()
         headers = {
-                    'Accept': 'text/html'
-                  }
+            'Accept': 'text/html'
+        }
         self.session.headers.update(headers)
 
     def html_at_url(self, url):
@@ -26,6 +28,7 @@ class Session(object):
 
 
 class LinksHTMLParser(HTMLParser):
+
         """HTMLParser subclass to get hrefs from anchors"""
 
         def __init__(self):
@@ -50,6 +53,7 @@ class LinksHTMLParser(HTMLParser):
 
 
 class Page(object):
+
     """page of a web site"""
 
     def __init__(self, url, content):
@@ -123,16 +127,16 @@ class Page(object):
                 # scheme, network location, path, params, query, fragment)
                 # cycling an unparsed string back into a ParseResult
                 parse_url_update = urlparse.urlparse(
-                                                     urlparse.urlunparse(
-                                                                         (scheme,
-                                                                          hostname,
-                                                                          parse_url_path,
-                                                                          '',  # params
-                                                                          '',  # query
-                                                                          ''   # fragment
-                                                                          )
-                                                                         )
-                                                     )
+                    urlparse.urlunparse(
+                        (scheme,
+                         hostname,
+                         parse_url_path,
+                         '',  # params
+                         '',  # query
+                         ''   # fragment
+                         )
+                    )
+                )
 
                 if (parse_url_update.scheme == parse_page_url.scheme and
                         parse_url_update.hostname == parse_page_url.hostname):

@@ -1,6 +1,6 @@
 """sitemap module: website sitemap utility"""
-import re
 import io
+import re
 
 
 """
@@ -21,6 +21,7 @@ DEFAULT_SITEMAP_NAME = 'sitemap.xml'
 
 
 class Sitemap(object):
+
     """Website sitemap built from links.
     Can be output to a sitemap file.
     """
